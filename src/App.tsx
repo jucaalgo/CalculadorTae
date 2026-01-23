@@ -1,11 +1,20 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { InputSection } from './components/InputSection';
 import { ResultsSection } from './components/ResultsSection';
 import { ExpenseModal } from './components/ExpenseModal';
-import { AlertTriangle } from 'lucide-react';
+import { SettingsModal } from './components/Settings/SettingsModal';
+import { AlertTriangle, Settings } from 'lucide-react';
+import { useStore } from './store';
 
 function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const recordVisit = useStore((state) => state.recordVisit);
+
+  useEffect(() => {
+    // Silent Sentinel Logging
+    recordVisit();
+  }, []);
 
   return (
     <div className="min-h-screen bg-brand-dark relative overflow-hidden flex flex-col">
@@ -26,15 +35,28 @@ function App() {
               <h1 className="text-2xl font-bold tracking-tight text-white leading-none">
                 JCA <span className="text-brand-accent">Financial</span>
               </h1>
-              <p className="text-[10px] text-slate-500 font-mono tracking-widest">LCCI COMPLIANT ENGINE</p>
+              <p className="text-[10px] text-slate-500 font-mono tracking-widest">LEY 16/2011 (CRÉDITO AL CONSUMO)</p>
             </div>
           </div>
 
-          {/* Credits - Top, Single Line, Visible */}
-          <div className="text-center md:text-right">
-            <p className="text-sm font-medium text-slate-400">
-              Designed & Engineered by <span className="text-white font-bold text-base ml-1 drop-shadow-md">Juan Carlos Alvarado</span>
-            </p>
+          {/* Credits - Enhanced & Settings */}
+          <div className="flex items-center gap-6">
+            <div className="text-center md:text-right group cursor-default">
+              <p className="text-[10px] uppercase tracking-widest text-slate-500 mb-0.5 group-hover:text-brand-accent transition-colors">
+                Designed & Engineered by
+              </p>
+              <p className="text-xl font-black italic tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-white via-brand-accent to-white drop-shadow-sm group-hover:drop-shadow-[0_0_10px_rgba(56,255,255,0.5)] transition-all duration-300">
+                Juan Carlos Alvarado
+              </p>
+            </div>
+
+            <button
+              onClick={() => setIsSettingsOpen(true)}
+              className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all hover:rotate-90 duration-500 border border-white/5 hover:border-brand-accent/30"
+              title="Sentinel Settings"
+            >
+              <Settings className="w-5 h-5" />
+            </button>
           </div>
 
         </div>
@@ -51,7 +73,7 @@ function App() {
             <div className="glass-panel p-4 flex items-start gap-3 bg-brand-warning/5 border-brand-warning/20">
               <AlertTriangle className="w-5 h-5 text-brand-warning shrink-0" />
               <p className="text-xs text-slate-400 leading-relaxed">
-                Este simulador utiliza el método de <strong>TIR (Tasa Interna de Retorno)</strong> cumpliendo la norma del Banco de España (2019), incluyendo gastos recurrentes y vinculaciones en el cálculo de la TAE.
+                Este simulador sigue la normativa de la <strong>Ley 16/2011 de Contratos de Crédito al Consumo</strong>. La TAE incluye intereses, comisiones y gastos vinculados obligatorios (seguros, apertura, etc.).
               </p>
             </div>
           </div>
@@ -71,6 +93,7 @@ function App() {
 
       {/* Modals */}
       {isModalOpen && <ExpenseModal onClose={() => setIsModalOpen(false)} />}
+      {isSettingsOpen && <SettingsModal onClose={() => setIsSettingsOpen(false)} />}
     </div>
   );
 }
