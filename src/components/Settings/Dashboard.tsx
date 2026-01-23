@@ -63,7 +63,7 @@ export const Dashboard = () => {
             </div>
 
             {/* Connection Config (Collapsible) */}
-            <div className="bg-black/40 border border-white/10 rounded-xl overflow-hidden">
+            <div className="bg-black/40 border border-white/10 rounded-xl">
                 <div
                     className="flex justify-between items-center p-4 cursor-pointer hover:bg-white/5"
                     onClick={() => setIsConfigOpen(!isConfigOpen)}
