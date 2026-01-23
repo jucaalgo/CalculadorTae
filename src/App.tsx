@@ -34,10 +34,10 @@ function App() {
 
       {/* Navbar / Header */}
       <header className="relative z-10 border-b border-white/5 bg-brand-dark/50 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4 relative">
 
           {/* Logo & Title */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 z-20">
             <div className="w-10 h-10 bg-gradient-to-tr from-brand-accent to-brand-purple rounded-xl flex items-center justify-center shadow-neon">
               <span className="font-bold text-white text-lg">JC</span>
             </div>
@@ -49,17 +49,18 @@ function App() {
             </div>
           </div>
 
-          {/* Credits - Enhanced & Settings */}
-          <div className="flex items-center gap-6">
-            <div className="text-center md:text-right group cursor-default">
-              <p className="text-[10px] uppercase tracking-widest text-slate-500 mb-0.5 group-hover:text-brand-accent transition-colors">
-                Designed & Engineered by
-              </p>
-              <p className="text-xl font-black italic tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-white via-brand-accent to-white drop-shadow-sm group-hover:drop-shadow-[0_0_10px_rgba(56,255,255,0.5)] transition-all duration-300">
-                Juan Carlos Alvarado
-              </p>
-            </div>
+          {/* Credits - CENTERED & HUGE */}
+          <div className="md:absolute md:left-1/2 md:-translate-x-1/2 text-center group cursor-default z-10 mt-2 md:mt-0">
+            <p className="text-[10px] uppercase tracking-[0.3em] text-slate-500 mb-1 group-hover:text-brand-accent transition-colors">
+              Designed & Engineered by
+            </p>
+            <p className="text-2xl md:text-3xl font-black italic tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-white via-brand-accent to-white drop-shadow-md group-hover:scale-105 transition-transform duration-300">
+              Juan Carlos Alvarado
+            </p>
+          </div>
 
+          {/* Settings Button (Right) */}
+          <div className="flex items-center gap-6 z-20">
             <button
               onClick={() => setIsSettingsOpen(true)}
               className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all hover:rotate-90 duration-500 border border-white/5 hover:border-brand-accent/30"
