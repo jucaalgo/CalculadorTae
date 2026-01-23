@@ -76,7 +76,7 @@ export const ResultsSection: React.FC = () => {
                                 <Tooltip
                                     contentStyle={{ backgroundColor: '#151B2B', borderColor: '#334155', borderRadius: '12px' }}
                                     itemStyle={{ color: '#fff' }}
-                                    formatter={(value: number) => `${value.toLocaleString('es-ES', { maximumFractionDigits: 0 })}€`}
+                                    formatter={(value: any) => `${(value || 0).toLocaleString('es-ES', { maximumFractionDigits: 0 })}€`}
                                 />
                                 <Legend verticalAlign="bottom" height={36} iconSize={8} wrapperStyle={{ fontSize: '12px' }} />
                             </PieChart>
@@ -108,7 +108,7 @@ export const ResultsSection: React.FC = () => {
                                 <Tooltip
                                     contentStyle={{ backgroundColor: '#151B2B', borderColor: '#334155', borderRadius: '12px', fontSize: '12px' }}
                                     itemStyle={{ color: '#3B82F6' }}
-                                    formatter={(value: number) => [`${value.toLocaleString('es-ES', { maximumFractionDigits: 0 })}€`, 'Deuda']}
+                                    formatter={(value: any) => [`${(value || 0).toLocaleString('es-ES', { maximumFractionDigits: 0 })}€`, 'Deuda']}
                                     labelFormatter={(label) => `Mes ${label}`}
                                 />
                                 <Area type="monotone" dataKey="balance" stroke="#3B82F6" fillOpacity={1} fill="url(#colorBalance)" strokeWidth={2} />

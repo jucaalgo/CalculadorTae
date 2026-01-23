@@ -3,7 +3,7 @@ import { useStore } from '../store';
 import { X, CheckCircle, Circle } from 'lucide-react';
 import { Finance } from '../utils/finance';
 import clsx from 'clsx';
-import type { Expense } from '../utils/finance';
+
 
 export const ExpenseModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     const { expenses, updateExpense, toggleExpenseInclusion, principal } = useStore();

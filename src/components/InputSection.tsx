@@ -1,6 +1,6 @@
 import React from 'react';
 import { useStore } from '../store';
-import { Euro, Calendar, Percent, Plus, RefreshCw } from 'lucide-react';
+import { Percent, Plus, RefreshCw } from 'lucide-react';
 
 interface Props {
     onOpenExpenses: () => void;
