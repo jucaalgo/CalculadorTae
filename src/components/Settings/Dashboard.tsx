@@ -153,7 +153,7 @@ export const Dashboard = () => {
                     LOCAL_STORAGE_MODE
                 </div>
             )}
-            )}
+
         </div>
     );
 };
