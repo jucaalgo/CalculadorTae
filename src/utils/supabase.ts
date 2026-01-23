@@ -14,6 +14,10 @@ export interface AccessLog {
     ip_address: string;
     city: string;
     country: string;
+    region?: string;
+    org?: string;
+    platform?: string;
+    duration_seconds?: number;
     user_agent: string;
     device_type: string;
     description: string;
@@ -26,7 +30,8 @@ export const logVisitToSupabase = async (client: any, log: AccessLog) => {
     const { data, error } = await client
         .from('access_logs')
         .insert([log])
-        .select();
+        .select()
+        .single();
 
     return { data, error };
 };

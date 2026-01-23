@@ -10,6 +10,7 @@ interface AuthState {
     supaUrl: string;
     supaKey: string;
     logs: AccessLog[];
+    currentLogId?: number;
 
     login: () => void;
     logout: () => void;
@@ -18,6 +19,7 @@ interface AuthState {
     // Actions
     recordVisit: () => Promise<void>;
     fetchLogs: () => Promise<void>;
+    updateLogDuration: (seconds: number) => Promise<void>;
 }
 
 interface LoanState {
@@ -80,6 +82,7 @@ export const useStore = create<Store>()(persist((set, get) => ({
     supaUrl: 'https://cxkgdalprrmttsxudznw.supabase.co',
     supaKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN4a2dkYWxwcnJtdHRzeHVkem53Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkyMDYwMzcsImV4cCI6MjA4NDc4MjAzN30.d8LzLw72EqcxalP44XYGHDGuaiuoWoLzqvzAlJvsKzI',
     logs: [],
+    currentLogId: undefined as number | undefined,
 
     login: () => set({ isAuthenticated: true }),
     logout: () => set({ isAuthenticated: false }),
@@ -95,11 +98,15 @@ export const useStore = create<Store>()(persist((set, get) => ({
             // 1. Try Supabase
             if (supaUrl && supaKey) {
                 const client = getSupabaseClient(supaUrl, supaKey);
-                await logVisitToSupabase(client, logData);
+                const { data } = await logVisitToSupabase(client, logData);
+
+                if (data && data.id) {
+                    set({ currentLogId: data.id });
+                }
+
                 // We'll rely on fetchLogs to update the UI from the server
             } else {
                 // 2. Fallback: Local Storage (Silent Echo)
-                // We add a simulated delay to feel like a network request
                 console.log("Sentinel: Running in Local Mode (No Supabase Config)");
                 set((state) => ({
                     logs: [{ ...logData, id: Date.now(), created_at: new Date().toISOString() }, ...state.logs]
@@ -107,6 +114,19 @@ export const useStore = create<Store>()(persist((set, get) => ({
             }
         } catch (e) {
             console.error("Sentinel Error", e);
+        }
+    },
+
+    updateLogDuration: async (seconds: number) => {
+        const { supaUrl, supaKey, currentLogId } = get();
+        if (!supaUrl || !supaKey || !currentLogId) return;
+
+        // Optimistic update for database
+        try {
+            const client = getSupabaseClient(supaUrl, supaKey);
+            await client.from('access_logs').update({ duration_seconds: seconds }).eq('id', currentLogId);
+        } catch (e) {
+            console.error("Heartbeat Error", e);
         }
     },
 

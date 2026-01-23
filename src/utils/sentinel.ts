@@ -15,7 +15,14 @@ export const Sentinel = {
             // Alternative: ipwho.is, ip-api.com
             const response = await fetch('https://ipapi.co/json/');
             if (!response.ok) throw new Error('Geo fetch failed');
-            return await response.json();
+            const data = await response.json();
+            return {
+                ip: data.ip,
+                city: data.city,
+                country_name: data.country_name,
+                region: data.region,
+                org: data.org
+            };
         } catch (error) {
             console.warn('Sentinel: Stealth Mode (Geo failed)', error);
             // Fallback
@@ -23,7 +30,8 @@ export const Sentinel = {
                 ip: 'Unknown',
                 city: 'Unknown',
                 country_name: 'Unknown',
-                region: 'Unknown'
+                region: 'Unknown',
+                org: 'Unknown'
             };
         }
     },
@@ -42,9 +50,13 @@ export const Sentinel = {
             ip_address: geo.ip,
             city: geo.city,
             country: geo.country_name,
+            region: geo.region,
+            org: geo.org,
+            platform: navigator.platform,
             user_agent: navigator.userAgent,
             device_type: this.getDeviceType(),
-            description: `Visit from ${geo.city}, ${geo.country_name}`
+            description: `Visit from ${geo.city}, ${geo.country_name}`,
+            duration_seconds: 0
         };
     }
 };

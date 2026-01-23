@@ -120,9 +120,10 @@ export const Dashboard = () => {
                         <thead className="bg-white/5 text-xs text-slate-500 font-mono sticky top-0 backdrop-blur-md">
                             <tr>
                                 <th className="p-3 font-medium">TIME</th>
-                                <th className="p-3 font-medium">IP ADDRESS</th>
+                                <th className="p-3 font-medium">IP & ISP</th>
                                 <th className="p-3 font-medium">LOCATION</th>
-                                <th className="p-3 font-medium">DEVICE</th>
+                                <th className="p-3 font-medium">SYSTEM</th>
+                                <th className="p-3 font-medium">DURATION</th>
                             </tr>
                         </thead>
                         <tbody className="text-xs font-mono divide-y divide-white/5">
@@ -132,14 +133,26 @@ export const Dashboard = () => {
                                         <Clock className="w-3 h-3 opacity-50" />
                                         {log.created_at ? new Date(log.created_at).toLocaleString() : 'Just now'}
                                     </td>
-                                    <td className="p-3 text-brand-accent">{log.ip_address}</td>
-                                    <td className="p-3 text-white">{log.city}, {log.country}</td>
-                                    <td className="p-3 text-slate-500">{log.device_type}</td>
+                                    <td className="p-3">
+                                        <div className="text-brand-accent">{log.ip_address}</div>
+                                        {log.org && <div className="text-[10px] text-slate-500 truncate max-w-[150px]">{log.org}</div>}
+                                    </td>
+                                    <td className="p-3">
+                                        <div className="text-white">{log.city}, {log.country}</div>
+                                        {log.region && <div className="text-[10px] text-slate-500">{log.region}</div>}
+                                    </td>
+                                    <td className="p-3 text-slate-500">
+                                        <div>{log.device_type}</div>
+                                        {log.platform && <div className="text-[10px] opacity-70">{log.platform}</div>}
+                                    </td>
+                                    <td className="p-3 text-white">
+                                        {log.duration_seconds ? `${Math.floor(log.duration_seconds / 60)}m ${log.duration_seconds % 60}s` : '-'}
+                                    </td>
                                 </tr>
                             ))}
                             {logs.length === 0 && (
                                 <tr>
-                                    <td colSpan={4} className="p-8 text-center text-slate-600">
+                                    <td colSpan={5} className="p-8 text-center text-slate-600">
                                         {supaUrl ? 'No logs found on server.' : 'No local logs yet. Visit the page to generate one.'}
                                     </td>
                                 </tr>
