@@ -78,7 +78,7 @@ export const useStore = create<Store>()(persist((set, get) => ({
     // --- Auth Slice ---
     isAuthenticated: false,
     supaUrl: 'https://cxkgdalprrmttsxudznw.supabase.co',
-    supaKey: 'sb_publishable_2u6crUtNepP42L0HQSvwWw_3yc8uqHK',
+    supaKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN4a2dkYWxwcnJtdHRzeHVkem53Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkyMDYwMzcsImV4cCI6MjA4NDc4MjAzN30.d8LzLw72EqcxalP44XYGHDGuaiuoWoLzqvzAlJvsKzI',
     logs: [],
 
     login: () => set({ isAuthenticated: true }),
