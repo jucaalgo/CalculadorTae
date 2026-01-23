@@ -63,7 +63,7 @@ export const Dashboard = () => {
             </div>
 
             {/* Connection Config (Collapsible) */}
-            <div className={`bg-black/40 border border-white/10 rounded-xl overflow-hidden transition-all duration-300 ${isConfigOpen ? 'max-h-[500px]' : 'max-h-14'}`}>
+            <div className="bg-black/40 border border-white/10 rounded-xl overflow-hidden">
                 <div
                     className="flex justify-between items-center p-4 cursor-pointer hover:bg-white/5"
                     onClick={() => setIsConfigOpen(!isConfigOpen)}
@@ -75,33 +75,35 @@ export const Dashboard = () => {
                     <span className="text-xs text-slate-500">{isConfigOpen ? 'Hide' : 'Configure'}</span>
                 </div>
 
-                <div className="p-4 pt-0 space-y-4 border-t border-white/10 mt-2">
-                    <div className="grid gap-2">
-                        <label className="text-xs text-slate-500">Project URL</label>
-                        <input
-                            value={urlInput}
-                            onChange={(e) => setUrlInput(e.target.value)}
-                            className="bg-black/50 border border-white/10 rounded px-3 py-2 text-xs font-mono text-brand-accent w-full focus:outline-none focus:border-brand-accent"
-                            placeholder="https://xyz.supabase.co"
-                        />
+                {isConfigOpen && (
+                    <div className="p-4 pt-0 space-y-4 border-t border-white/10 mt-2 animate-in slide-in-from-top-2 duration-200">
+                        <div className="grid gap-2">
+                            <label className="text-xs text-slate-500">Project URL</label>
+                            <input
+                                value={urlInput}
+                                onChange={(e) => setUrlInput(e.target.value)}
+                                className="bg-black/50 border border-white/10 rounded px-3 py-2 text-xs font-mono text-brand-accent w-full focus:outline-none focus:border-brand-accent"
+                                placeholder="https://xyz.supabase.co"
+                            />
+                        </div>
+                        <div className="grid gap-2">
+                            <label className="text-xs text-slate-500">Anon Key</label>
+                            <input
+                                value={keyInput}
+                                onChange={(e) => setKeyInput(e.target.value)}
+                                className="bg-black/50 border border-white/10 rounded px-3 py-2 text-xs font-mono text-brand-accent w-full focus:outline-none focus:border-brand-accent"
+                                placeholder="eyJhbGciOiJIUzI1NiIsInR..."
+                            />
+                        </div>
+                        <button
+                            onClick={handleSaveConfig}
+                            className="w-full bg-white/10 hover:bg-white/20 text-white text-xs font-bold py-2 rounded flex items-center justify-center gap-2"
+                        >
+                            <Save className="w-3 h-3" />
+                            SAVE CONFIG
+                        </button>
                     </div>
-                    <div className="grid gap-2">
-                        <label className="text-xs text-slate-500">Anon Key</label>
-                        <input
-                            value={keyInput}
-                            onChange={(e) => setKeyInput(e.target.value)}
-                            className="bg-black/50 border border-white/10 rounded px-3 py-2 text-xs font-mono text-brand-accent w-full focus:outline-none focus:border-brand-accent"
-                            placeholder="eyJhbGciOiJIUzI1NiIsInR..."
-                        />
-                    </div>
-                    <button
-                        onClick={handleSaveConfig}
-                        className="w-full bg-white/10 hover:bg-white/20 text-white text-xs font-bold py-2 rounded flex items-center justify-center gap-2"
-                    >
-                        <Save className="w-3 h-3" />
-                        SAVE CONFIG
-                    </button>
-                </div>
+                )}
             </div>
 
             {/* Logs Table */}
