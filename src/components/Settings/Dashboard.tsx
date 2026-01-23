@@ -63,7 +63,7 @@ export const Dashboard = () => {
             </div>
 
             {/* Connection Config (Collapsible) */}
-            <div className={`bg-black/40 border border-white/10 rounded-xl overflow-hidden transition-all duration-300 ${isConfigOpen ? 'max-h-96' : 'max-h-14'}`}>
+            <div className={`bg-black/40 border border-white/10 rounded-xl overflow-hidden transition-all duration-300 ${isConfigOpen ? 'max-h-[500px]' : 'max-h-14'}`}>
                 <div
                     className="flex justify-between items-center p-4 cursor-pointer hover:bg-white/5"
                     onClick={() => setIsConfigOpen(!isConfigOpen)}
@@ -138,7 +138,7 @@ export const Dashboard = () => {
                             {logs.length === 0 && (
                                 <tr>
                                     <td colSpan={4} className="p-8 text-center text-slate-600">
-                                        No logs found. Check Supabase connection.
+                                        {supaUrl ? 'No logs found on server.' : 'No local logs yet. Visit the page to generate one.'}
                                     </td>
                                 </tr>
                             )}
@@ -147,6 +147,13 @@ export const Dashboard = () => {
                 </div>
             </div>
 
+            {/* Mode Indicator */}
+            {!supaUrl && (
+                <div className="absolute bottom-4 right-4 text-[10px] bg-brand-warning/10 text-brand-warning px-2 py-1 rounded border border-brand-warning/20 font-mono">
+                    LOCAL_STORAGE_MODE
+                </div>
+            )}
+            )}
         </div>
     );
 };

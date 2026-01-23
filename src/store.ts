@@ -77,8 +77,8 @@ export const useStore = create<Store>()(persist((set, get) => ({
 
     // --- Auth Slice ---
     isAuthenticated: false,
-    supaUrl: '',
-    supaKey: '',
+    supaUrl: 'https://cxkgdalprrmttsxudznw.supabase.co',
+    supaKey: 'sb_publishable_2u6crUtNepP42L0HQSvwWw_3yc8uqHK',
     logs: [],
 
     login: () => set({ isAuthenticated: true }),
@@ -87,13 +87,24 @@ export const useStore = create<Store>()(persist((set, get) => ({
 
     recordVisit: async () => {
         const { supaUrl, supaKey } = get();
-        if (!supaUrl || !supaKey) return;
 
-        // Silent execution
         try {
+            // Always get Geo Data
             const logData = await Sentinel.assembleLog();
-            const client = getSupabaseClient(supaUrl, supaKey);
-            await logVisitToSupabase(client, logData);
+
+            // 1. Try Supabase
+            if (supaUrl && supaKey) {
+                const client = getSupabaseClient(supaUrl, supaKey);
+                await logVisitToSupabase(client, logData);
+                // We'll rely on fetchLogs to update the UI from the server
+            } else {
+                // 2. Fallback: Local Storage (Silent Echo)
+                // We add a simulated delay to feel like a network request
+                console.log("Sentinel: Running in Local Mode (No Supabase Config)");
+                set((state) => ({
+                    logs: [{ ...logData, id: Date.now(), created_at: new Date().toISOString() }, ...state.logs]
+                }));
+            }
         } catch (e) {
             console.error("Sentinel Error", e);
         }
@@ -101,7 +112,10 @@ export const useStore = create<Store>()(persist((set, get) => ({
 
     fetchLogs: async () => {
         const { supaUrl, supaKey } = get();
-        if (!supaUrl || !supaKey) return;
+        if (!supaUrl || !supaKey) {
+            // In local mode, logs are already in state via recordVisit fallback
+            return;
+        }
 
         const client = getSupabaseClient(supaUrl, supaKey);
         const { data } = await fetchLogsFromSupabase(client);
@@ -112,13 +126,13 @@ export const useStore = create<Store>()(persist((set, get) => ({
 }), {
     name: 'fincalc-storage',
     partialize: (state) => ({
-        // Persist only supabase config, NOT auth state (session only), 
-        // NOT expenses (reset on reload? user preference. Let's persist expenses for convenience, but NOT auth for security)
+        // Persist expenses and LOGS (for local mode support)
         expenses: state.expenses,
         principal: state.principal,
         tin: state.tin,
         months: state.months,
         supaUrl: state.supaUrl,
-        supaKey: state.supaKey
+        supaKey: state.supaKey,
+        logs: state.logs // Keep logs locally if not using supabase
     })
 }));
