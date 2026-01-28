@@ -12,16 +12,7 @@ function App() {
   const { recordVisit, supaUrl, setSupabaseConfig } = useStore();
 
   useEffect(() => {
-    // 1. Force Injection of Credentials if missing (Fixes Stale LocalStorage)
-    const HARDCODED_URL = 'https://cxkgdalprrmttsxudznw.supabase.co';
-    const HARDCODED_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN4a2dkYWxwcnJtdHRzeHVkem53Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkyMDYwMzcsImV4cCI6MjA4NDc4MjAzN30.d8LzLw72EqcxalP44XYGHDGuaiuoWoLzqvzAlJvsKzI';
-
-    if (!supaUrl || supaUrl === '') {
-      console.log("App: Auto-injecting Supabase Credentials");
-      setSupabaseConfig(HARDCODED_URL, HARDCODED_KEY);
-    }
-
-    // 2. Silent Sentinel Logging
+    // 1. Silent Sentinel Logging
     // Small delay to ensure state update processes first
     setTimeout(() => recordVisit(), 1000);
   }, []);

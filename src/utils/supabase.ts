@@ -1,49 +1,16 @@
 import { createClient } from '@supabase/supabase-js';
 
-// We allow the user to provide these at runtime via the Settings panel, 
-// OR use environment variables if provided during build.
-// For the playground, we will store them in localStorage so the user doesn't have to re-enter them constantly.
+// Unified Strategy: Use Env Vars
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-export const getSupabaseClient = (url: string, key: string) => {
-    return createClient(url, key);
-};
-
-export interface AccessLog {
-    id?: number;
-    created_at?: string;
-    ip_address: string;
-    city: string;
-    country: string;
-    region?: string;
-    org?: string;
-    platform?: string;
-    duration_seconds?: number;
-    user_agent: string;
-    device_type: string;
-    description: string;
+if (!supabaseUrl || !supabaseKey) {
+    console.warn('⚠️ Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY');
 }
 
-export const logVisitToSupabase = async (client: any, log: AccessLog) => {
-    if (!client) return { error: 'No client' };
+export const supabase = createClient(supabaseUrl || '', supabaseKey || '');
 
-    // Assume table is 'access_logs'
-    const { data, error } = await client
-        .from('access_logs')
-        .insert([log])
-        .select()
-        .single();
-
-    return { data, error };
-};
-
-export const fetchLogsFromSupabase = async (client: any) => {
-    if (!client) return { error: 'No client' };
-
-    const { data, error } = await client
-        .from('access_logs')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(100);
-
-    return { data, error };
-};
+/**
+ * UNIQUE APP ID
+ */
+export const APP_ID = 'fincalc-pro';

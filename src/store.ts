@@ -1,24 +1,23 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Expense } from './utils/finance';
-import { getSupabaseClient, logVisitToSupabase, fetchLogsFromSupabase } from './utils/supabase';
-import type { AccessLog } from './utils/supabase';
+import { supabase, APP_ID } from './utils/supabase';
 import { Sentinel } from './utils/sentinel';
 
-interface AuthState {
-    isAuthenticated: boolean;
-    supaUrl: string;
-    supaKey: string;
-    logs: AccessLog[];
-    currentLogId?: number;
+// Access Log Type matching Unified Schema (metadata focus)
+export interface AccessLog {
+    id: string; // UUID from supabase
+    action: string;
+    created_at: string;
+    metadata: any;
+}
 
-    login: () => void;
-    logout: () => void;
-    setSupabaseConfig: (url: string, key: string) => void;
+interface AuthState {
+    logs: AccessLog[];
+    currentLogId?: string; // UUID now
 
     // Actions
     recordVisit: () => Promise<void>;
-    fetchLogs: () => Promise<void>;
     updateLogDuration: (seconds: number) => Promise<void>;
 }
 
@@ -77,40 +76,37 @@ export const useStore = create<Store>()(persist((set, get) => ({
         ]
     }),
 
-    // --- Auth Slice ---
-    isAuthenticated: false,
-    supaUrl: 'https://cxkgdalprrmttsxudznw.supabase.co',
-    supaKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN4a2dkYWxwcnJtdHRzeHVkem53Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkyMDYwMzcsImV4cCI6MjA4NDc4MjAzN30.d8LzLw72EqcxalP44XYGHDGuaiuoWoLzqvzAlJvsKzI',
+    // --- Auth/Telemetry Slice (Unified) ---
     logs: [],
-    currentLogId: undefined as number | undefined,
-
-    login: () => set({ isAuthenticated: true }),
-    logout: () => set({ isAuthenticated: false }),
-    setSupabaseConfig: (url, key) => set({ supaUrl: url, supaKey: key }),
+    currentLogId: undefined,
 
     recordVisit: async () => {
-        const { supaUrl, supaKey } = get();
-
         try {
-            // Always get Geo Data
             const logData = await Sentinel.assembleLog();
 
-            // 1. Try Supabase
-            if (supaUrl && supaKey) {
-                const client = getSupabaseClient(supaUrl, supaKey);
-                const { data } = await logVisitToSupabase(client, logData);
-
-                if (data && data.id) {
-                    set({ currentLogId: data.id });
+            // Insert into Unified Table
+            const entry = {
+                app_id: null, // Resolves via RLS or simplified schema
+                action: 'LOGIN',
+                level: 'info',
+                metadata: {
+                    ip: logData.ip_address,
+                    location: `${logData.city}, ${logData.country}`,
+                    user_agent: logData.user_agent,
+                    app_slug: APP_ID
                 }
+            };
 
-                // We'll rely on fetchLogs to update the UI from the server
-            } else {
-                // 2. Fallback: Local Storage (Silent Echo)
-                console.log("Sentinel: Running in Local Mode (No Supabase Config)");
-                set((state) => ({
-                    logs: [{ ...logData, id: Date.now(), created_at: new Date().toISOString() }, ...state.logs]
-                }));
+            const { data, error } = await supabase
+                .from('activity_logs')
+                .insert([entry])
+                .select()
+                .single();
+
+            if (data) {
+                set({ currentLogId: data.id });
+            } else if (error) {
+                console.error("Supabase Log Error:", error);
             }
         } catch (e) {
             console.error("Sentinel Error", e);
@@ -118,41 +114,20 @@ export const useStore = create<Store>()(persist((set, get) => ({
     },
 
     updateLogDuration: async (seconds: number) => {
-        const { supaUrl, supaKey, currentLogId } = get();
-        if (!supaUrl || !supaKey || !currentLogId) return;
+        const { currentLogId } = get();
+        if (!currentLogId) return;
 
-        // Optimistic update for database
-        try {
-            const client = getSupabaseClient(supaUrl, supaKey);
-            await client.from('access_logs').update({ duration_seconds: seconds }).eq('id', currentLogId);
-        } catch (e) {
-            console.error("Heartbeat Error", e);
-        }
-    },
-
-    fetchLogs: async () => {
-        const { supaUrl, supaKey } = get();
-        if (!supaUrl || !supaKey) {
-            // In local mode, logs are already in state via recordVisit fallback
-            return;
-        }
-
-        const client = getSupabaseClient(supaUrl, supaKey);
-        const { data } = await fetchLogsFromSupabase(client);
-        if (data) {
-            set({ logs: data as AccessLog[] });
-        }
+        // Currently 'activity_logs' might not store duration in the root column depending on schema v1 vs v2
+        // We'll update metadata or ignored for now if schema is strict.
+        // Assuming we added 'metadata' updates support:
+        // await supabase.from('activity_logs').update({ metadata: { duration: seconds } }).eq('id', currentLogId);
     }
 }), {
     name: 'fincalc-storage',
     partialize: (state) => ({
-        // Persist expenses and LOGS (for local mode support)
         expenses: state.expenses,
         principal: state.principal,
         tin: state.tin,
         months: state.months,
-        supaUrl: state.supaUrl,
-        supaKey: state.supaKey,
-        logs: state.logs // Keep logs locally if not using supabase
     })
 }));
