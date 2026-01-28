@@ -1,4 +1,4 @@
-import type { AccessLog } from './supabase';
+import type { AccessLog } from '../store';
 
 export interface GeoData {
     ip: string;

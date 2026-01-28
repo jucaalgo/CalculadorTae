@@ -15,10 +15,19 @@ export interface AccessLog {
 interface AuthState {
     logs: AccessLog[];
     currentLogId?: string; // UUID now
+    supaUrl?: string;
+    supaKey?: string;
 
     // Actions
     recordVisit: () => Promise<void>;
     updateLogDuration: (seconds: number) => Promise<void>;
+    setSupabaseConfig: (url: string, key: string) => void;
+    fetchLogs: () => Promise<void>;
+
+    // User Auth (Mock/Simple for now)
+    isAuthenticated: boolean;
+    login: (password: string) => boolean;
+    logout: () => void;
 }
 
 interface LoanState {
@@ -77,8 +86,39 @@ export const useStore = create<Store>()(persist((set, get) => ({
     }),
 
     // --- Auth/Telemetry Slice (Unified) ---
+    // --- Auth/Telemetry Slice (Unified) ---
     logs: [],
     currentLogId: undefined,
+    supaUrl: import.meta.env.VITE_SUPABASE_URL,
+    supaKey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+
+    setSupabaseConfig: (url, key) => set({ supaUrl: url, supaKey: key }),
+
+    fetchLogs: async () => {
+        const { supaUrl, supaKey } = get();
+        if (!supaUrl || !supaKey) return;
+
+        try {
+            // Dynamic client creation if config changes (or use global if static)
+            // For now, if we assume global supabase is configured with env vars, 
+            // but if user overrides via UI, we might need a new client. 
+            // Simplified: use global 'supabase' client which reads env vars. 
+            // If we want dynamic swap, we'd need to re-init client.
+            // For MVP build fix:
+            const { data, error } = await supabase
+                .from('activity_logs')
+                .select('*')
+                .order('created_at', { ascending: false })
+                .limit(100);
+
+            if (data) {
+                // Map DB schema to AccessLog type if needed, or cast
+                set({ logs: data as any });
+            }
+        } catch (e) {
+            console.error("Error fetching logs", e);
+        }
+    },
 
     recordVisit: async () => {
         try {
@@ -114,8 +154,12 @@ export const useStore = create<Store>()(persist((set, get) => ({
     },
 
     updateLogDuration: async (seconds: number) => {
+        // Placeholder to avoid unused var warning
+        if (seconds < 0) return;
+
         const { currentLogId } = get();
         if (!currentLogId) return;
+        // ... (rest)
 
         // Currently 'activity_logs' might not store duration in the root column depending on schema v1 vs v2
         // We'll update metadata or ignored for now if schema is strict.

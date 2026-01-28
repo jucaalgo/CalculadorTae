@@ -22,10 +22,15 @@ export const Dashboard = () => {
 
     // Derived Stats
     const totalVisits = logs.length;
-    const uniqueIPs = new Set(logs.map(l => l.ip_address)).size;
+    // Access metadata safely
+    const uniqueIPs = new Set(logs.map(l => l.metadata?.ip || 'unknown')).size;
     const topCountry = logs.length > 0
-        ? Object.entries(logs.reduce((acc, l) => { acc[l.country] = (acc[l.country] || 0) + 1; return acc; }, {} as any))
-            .sort((a: any, b: any) => b[1] - a[1])[0]?.[0] || 'N/A'
+        ? Object.entries(logs.reduce((acc, l) => {
+            const c = l.metadata?.country || 'Unknown';
+            acc[c] = (acc[c] || 0) + 1;
+            return acc;
+        }, {} as Record<string, number>))
+            .sort((a, b) => b[1] - a[1])[0]?.[0] || 'N/A'
         : 'N/A';
 
     return (
@@ -134,19 +139,19 @@ export const Dashboard = () => {
                                         {log.created_at ? new Date(log.created_at).toLocaleString() : 'Just now'}
                                     </td>
                                     <td className="p-3">
-                                        <div className="text-brand-accent">{log.ip_address}</div>
-                                        {log.org && <div className="text-[10px] text-slate-500 truncate max-w-[150px]">{log.org}</div>}
+                                        <div className="text-brand-accent">{log.metadata?.ip}</div>
+                                        {log.metadata?.provider && <div className="text-[10px] text-slate-500 truncate max-w-[150px]">{log.metadata.provider || log.metadata.org}</div>}
                                     </td>
                                     <td className="p-3">
-                                        <div className="text-white">{log.city}, {log.country}</div>
-                                        {log.region && <div className="text-[10px] text-slate-500">{log.region}</div>}
+                                        <div className="text-white">{log.metadata?.city}, {log.metadata?.country}</div>
+                                        {log.metadata?.region && <div className="text-[10px] text-slate-500">{log.metadata.region}</div>}
                                     </td>
                                     <td className="p-3 text-slate-500">
-                                        <div>{log.device_type}</div>
-                                        {log.platform && <div className="text-[10px] opacity-70">{log.platform}</div>}
+                                        <div>{log.metadata?.device_type || 'Desktop'}</div>
+                                        {log.metadata?.platform && <div className="text-[10px] opacity-70">{log.metadata.platform}</div>}
                                     </td>
                                     <td className="p-3 text-white">
-                                        {log.duration_seconds ? `${Math.floor(log.duration_seconds / 60)}m ${log.duration_seconds % 60}s` : '-'}
+                                        {log.metadata?.duration_seconds ? `${Math.floor(log.metadata.duration_seconds / 60)}m ${Math.floor(log.metadata.duration_seconds) % 60}s` : '-'}
                                     </td>
                                 </tr>
                             ))}
