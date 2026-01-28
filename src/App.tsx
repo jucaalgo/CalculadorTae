@@ -9,7 +9,7 @@ import { useStore } from './store';
 function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const { recordVisit, supaUrl, setSupabaseConfig } = useStore();
+  const { recordVisit } = useStore();
 
   useEffect(() => {
     // 1. Silent Sentinel Logging

@@ -12,7 +12,7 @@ export const LoginForm = () => {
         e.preventDefault();
         // Hardcoded credentials as per specification
         if (user === 'jucaalgo' && pass === '13470811') {
-            login();
+            login('admin123');
         } else {
             setError(true);
             setTimeout(() => setError(false), 2000); // Shake/reset

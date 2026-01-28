@@ -1,4 +1,4 @@
-import type { AccessLog } from '../store';
+import type { TelemetryData } from '../store';
 
 export interface GeoData {
     ip: string;
@@ -43,7 +43,7 @@ export const Sentinel = {
         return 'Desktop';
     },
 
-    async assembleLog(): Promise<AccessLog> {
+    async assembleLog(): Promise<TelemetryData> {
         const geo = await this.getGeoLocation();
 
         return {

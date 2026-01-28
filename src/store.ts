@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Expense } from './utils/finance';
-import { supabase, APP_ID } from './utils/supabase';
+import { supabase } from './utils/supabase';
 import { Sentinel } from './utils/sentinel';
 
 // Access Log Type matching Unified Schema (metadata focus)
@@ -10,6 +10,19 @@ export interface AccessLog {
     action: string;
     created_at: string;
     metadata: any;
+}
+
+export interface TelemetryData {
+    ip_address: string;
+    city: string;
+    country: string;
+    region: string;
+    org?: string;
+    platform: string;
+    user_agent: string;
+    device_type: string;
+    description: string;
+    duration_seconds: number;
 }
 
 interface AuthState {
@@ -99,11 +112,7 @@ export const useStore = create<Store>()(persist((set, get) => ({
         if (!supaUrl || !supaKey) return;
 
         try {
-            // Dynamic client creation if config changes (or use global if static)
-            // For now, if we assume global supabase is configured with env vars, 
-            // but if user overrides via UI, we might need a new client. 
             // Simplified: use global 'supabase' client which reads env vars. 
-            // If we want dynamic swap, we'd need to re-init client.
             // For MVP build fix:
             const { data, error } = await supabase
                 .from('activity_logs')
@@ -114,11 +123,24 @@ export const useStore = create<Store>()(persist((set, get) => ({
             if (data) {
                 // Map DB schema to AccessLog type if needed, or cast
                 set({ logs: data as any });
+            } else if (error) {
+                console.error("FetchLogs Error:", error);
             }
         } catch (e) {
             console.error("Error fetching logs", e);
         }
     },
+
+    // --- Auth Implementation ---
+    isAuthenticated: false,
+    login: (password: string) => {
+        if (password === 'admin123') {
+            set({ isAuthenticated: true });
+            return true;
+        }
+        return false;
+    },
+    logout: () => set({ isAuthenticated: false }),
 
     recordVisit: async () => {
         try {
@@ -132,8 +154,8 @@ export const useStore = create<Store>()(persist((set, get) => ({
                 metadata: {
                     ip: logData.ip_address,
                     location: `${logData.city}, ${logData.country}`,
-                    user_agent: logData.user_agent,
-                    app_slug: APP_ID
+                    app_slug: 'fincalc-pro',
+                    ...logData
                 }
             };
 

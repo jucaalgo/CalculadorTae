@@ -15,7 +15,7 @@ export const Dashboard = () => {
     }, []);
 
     const handleSaveConfig = () => {
-        setSupabaseConfig(urlInput, keyInput);
+        setSupabaseConfig(urlInput || '', keyInput || '');
         setIsConfigOpen(false);
         setTimeout(() => fetchLogs(), 500);
     };
