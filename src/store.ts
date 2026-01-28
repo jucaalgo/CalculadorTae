@@ -117,6 +117,7 @@ export const useStore = create<Store>()(persist((set, get) => ({
             const { data, error } = await supabase
                 .from('activity_logs')
                 .select('*')
+                .contains('metadata', { app_slug: 'fincalc-pro' })
                 .order('created_at', { ascending: false })
                 .limit(100);
 
