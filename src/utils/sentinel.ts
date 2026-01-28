@@ -17,11 +17,11 @@ export const Sentinel = {
             if (!response.ok) throw new Error('Geo fetch failed');
             const data = await response.json();
             return {
-                ip: data.ip,
-                city: data.city,
-                country_name: data.country_name,
-                region: data.region,
-                org: data.org
+                ip: data.ip || 'Unknown',
+                city: data.city || 'Unknown',
+                country_name: data.country_name || 'Unknown',
+                region: data.region || 'Unknown',
+                org: data.org || 'Unknown'
             };
         } catch (error) {
             console.warn('Sentinel: Stealth Mode (Geo failed)', error);

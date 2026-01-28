@@ -139,11 +139,11 @@ export const Dashboard = () => {
                                         {log.created_at ? new Date(log.created_at).toLocaleString() : 'Just now'}
                                     </td>
                                     <td className="p-3">
-                                        <div className="text-brand-accent">{log.metadata?.ip}</div>
+                                        <div className="text-brand-accent">{log.metadata?.ip || 'Hidden'}</div>
                                         {log.metadata?.provider && <div className="text-[10px] text-slate-500 truncate max-w-[150px]">{log.metadata.provider || log.metadata.org}</div>}
                                     </td>
                                     <td className="p-3">
-                                        <div className="text-white">{log.metadata?.city}, {log.metadata?.country}</div>
+                                        <div className="text-white">{log.metadata?.city || 'Unknown'}, {log.metadata?.country || 'Region'}</div>
                                         {log.metadata?.region && <div className="text-[10px] text-slate-500">{log.metadata.region}</div>}
                                     </td>
                                     <td className="p-3 text-slate-500">
