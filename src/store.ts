@@ -4,6 +4,12 @@ import type { Expense } from './utils/finance';
 import { supabase } from './utils/supabase';
 import { Sentinel } from './utils/sentinel';
 
+// Security Configuration
+const USERS = [
+    { username: 'jucaalgo', password: '13470811' },
+    { username: 'helen', password: 'esposa' }
+];
+
 // Access Log Type matching Unified Schema (metadata focus)
 export interface AccessLog {
     id: string; // UUID from supabase
@@ -39,7 +45,7 @@ interface AuthState {
 
     // User Auth (Mock/Simple for now)
     isAuthenticated: boolean;
-    login: (password: string) => boolean;
+    login: (username: string, password: string) => boolean;
     logout: () => void;
 }
 
@@ -134,8 +140,10 @@ export const useStore = create<Store>()(persist((set, get) => ({
 
     // --- Auth Implementation ---
     isAuthenticated: false,
-    login: (password: string) => {
-        if (password === 'admin123') {
+    isAuthenticated: false,
+    login: (username: string, password: string) => {
+        const user = USERS.find(u => u.username === username && u.password === password);
+        if (user) {
             set({ isAuthenticated: true });
             return true;
         }

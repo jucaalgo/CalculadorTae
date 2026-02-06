@@ -10,9 +10,9 @@ export const LoginForm = () => {
 
     const handleLogin = (e: React.FormEvent) => {
         e.preventDefault();
-        // Hardcoded credentials as per specification
-        if (user === 'jucaalgo' && pass === '13470811') {
-            login('admin123');
+        // Use updated login form store
+        if (login(user, pass)) {
+            // Success handled by store state
         } else {
             setError(true);
             setTimeout(() => setError(false), 2000); // Shake/reset
