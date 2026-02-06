@@ -140,7 +140,6 @@ export const useStore = create<Store>()(persist((set, get) => ({
 
     // --- Auth Implementation ---
     isAuthenticated: false,
-    isAuthenticated: false,
     login: (username: string, password: string) => {
         const user = USERS.find(u => u.username === username && u.password === password);
         if (user) {

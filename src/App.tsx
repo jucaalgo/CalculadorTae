@@ -5,8 +5,10 @@ import { ExpenseModal } from './components/ExpenseModal';
 import { SettingsModal } from './components/Settings/SettingsModal';
 import { AlertTriangle, Settings } from 'lucide-react';
 import { useStore } from './store';
+import { SecurityGate } from './components/SecurityGate';
 
 function App() {
+  const [user, setUser] = useState<{ username: string; role: string } | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const { recordVisit } = useStore();
@@ -14,8 +16,14 @@ function App() {
   useEffect(() => {
     // 1. Silent Sentinel Logging
     // Small delay to ensure state update processes first
-    setTimeout(() => recordVisit(), 1000);
-  }, []);
+    if (user) {
+      setTimeout(() => recordVisit(), 1000);
+    }
+  }, [user]);
+
+  if (!user) {
+    return <SecurityGate onLogin={setUser} />;
+  }
 
   return (
     <div className="min-h-screen bg-brand-dark relative overflow-hidden flex flex-col">
